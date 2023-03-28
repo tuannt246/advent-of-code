@@ -1,53 +1,54 @@
 <?php
 
-echo "part1: " . part1("input.txt");
-
-print "\n";
-
-echo "part2: " . part2("input.txt");
-
-function part1($file_name)
+function dayOne($fileName)
 {
-    $file_input = fopen($file_name, "r");
-    $current_max = 0;
-    $sum = 0;
+    $calories = readFileContents($fileName);
 
-    while (!feof($file_input)) {
-        $content = (int) fgets($file_input);
+    $caloriesCarriedByElves = findTotalCaloriesCarriedByElves($calories);
 
-        if (!$content) {
-            $current_max = max($sum, $current_max);
-            $sum = 0;
-        } else {
-            $sum += $content;
-        }
-    }
-    fclose($file_input);
+    $theMostCaloriesByElf = $caloriesCarriedByElves[0];
 
-    return $current_max;
+    $theMostCaloriesByThreeElves =
+        $caloriesCarriedByElves[0] +
+        $caloriesCarriedByElves[1] +
+        $caloriesCarriedByElves[2];
+
+    $result = [$theMostCaloriesByElf, $theMostCaloriesByThreeElves];
+
+    printResult($result);
 }
 
-function part2($file_name)
+function readFileContents($fileName)
 {
-    $file_input = fopen($file_name, "r");
-    $sum = 0;
-    $calories_elves_carrying = [];
+    return file($fileName, FILE_IGNORE_NEW_LINES);
+}
 
-    while (!feof($file_input)) {
-        $content = (int) fgets($file_input);
+function findTotalCaloriesCarriedByElves($calories): array
+{
+    $totalCaloriesByElf = 0;
+    $caloriesCarriedByElves = [];
 
-        if (!$content) {
-            $calories_elves_carrying[] = $sum;
-            $sum = 0;
+    foreach ($calories as $calorie) {
+        if (!$calorie) {
+            $caloriesCarriedByElves[] = $totalCaloriesByElf;
+            $totalCaloriesByElf = 0;
         } else {
-            $sum += $content;
+            $totalCaloriesByElf += $calorie;
         }
     }
-    fclose($file_input);
 
-    rsort($calories_elves_carrying);
+    rsort($caloriesCarriedByElves);
 
-    return $calories_elves_carrying[0] +
-        $calories_elves_carrying[1] +
-        $calories_elves_carrying[2];
+    return $caloriesCarriedByElves;
 }
+
+function printResult($result)
+{
+    echo "--- Day 1: Calorie Counting ---" . "\n";
+
+    echo "The most Calories carrying by that Elf is " . $result[0] . "\n";
+
+    echo "The most Calories carrying by the top three Elves is " . $result[1] . "\n";
+}
+
+dayOne("input.txt");
